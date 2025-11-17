@@ -10,6 +10,17 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+def get_api_key():
+    """Get API key from Streamlit secrets or environment."""
+    try:
+        import streamlit as st
+        if hasattr(st, 'secrets') and 'ANTHROPIC_API_KEY' in st.secrets:
+            return st.secrets['ANTHROPIC_API_KEY']
+    except ImportError:
+        pass
+    return os.getenv('ANTHROPIC_API_KEY')
+
+
 class SQLGenerator:
     """Generates SQL queries from natural language using Claude."""
 
@@ -20,7 +31,7 @@ class SQLGenerator:
         Args:
             schema_context: String description of the database schema
         """
-        self.client = Anthropic(api_key=os.getenv('ANTHROPIC_API_KEY'))
+        self.client = Anthropic(api_key=get_api_key())
         self.schema_context = schema_context
         self.model = "claude-sonnet-4-5-20250929"
 

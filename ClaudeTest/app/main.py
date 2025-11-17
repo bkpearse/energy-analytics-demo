@@ -3,7 +3,6 @@ Main Streamlit application for AI-powered analytics chat.
 """
 import streamlit as st
 import pandas as pd
-from dotenv import load_dotenv
 import os
 import sys
 
@@ -15,8 +14,22 @@ from app.llm import SQLGenerator, build_schema_context
 from app.visualizations import Visualizer
 from app.auth import AuthManager, init_session_state, login_page, logout
 
-# Load environment variables
-load_dotenv()
+# Load environment variables (works for both local .env and Streamlit Cloud secrets)
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    # Running on Streamlit Cloud without python-dotenv
+    pass
+
+# Helper function to get config from either .env or st.secrets
+def get_config(key, default=None):
+    """Get configuration from environment or Streamlit secrets."""
+    # Try Streamlit secrets first (for cloud deployment)
+    if hasattr(st, 'secrets') and key in st.secrets:
+        return st.secrets[key]
+    # Fall back to environment variables (for local development)
+    return os.getenv(key, default)
 
 # Page configuration
 st.set_page_config(
