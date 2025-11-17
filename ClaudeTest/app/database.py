@@ -5,7 +5,7 @@ No PostgreSQL required - perfect for demos and showcasing.
 import pandas as pd
 from typing import Dict, List, Any, Optional
 import logging
-import pandasql as ps
+import duckdb
 
 from app.mock_data import MOCK_DATA, get_sales_pipeline_view, get_monthly_sales_performance_view
 
@@ -36,21 +36,26 @@ class DatabaseManager:
 
     def execute_query(self, query: str, params: Optional[tuple] = None) -> pd.DataFrame:
         """
-        Execute a SQL query against mock data using pandasql.
+        Execute a SQL query against mock data using DuckDB.
 
         Args:
             query: SQL query string
-            params: Not used with pandasql (kept for compatibility)
+            params: Not used with DuckDB (kept for compatibility)
 
         Returns:
             pd.DataFrame with query results
         """
         try:
-            # Make all tables available to pandasql
-            locals_dict = self.data.copy()
+            # Create an in-memory DuckDB connection
+            conn = duckdb.connect(':memory:')
 
-            # Execute query using pandasql
-            result = ps.sqldf(query, locals_dict)
+            # Register all DataFrames as tables in DuckDB
+            for table_name, df in self.data.items():
+                conn.register(table_name, df)
+
+            # Execute query
+            result = conn.execute(query).fetchdf()
+            conn.close()
 
             logger.info(f"Query executed successfully. Returned {len(result)} rows.")
             return result
