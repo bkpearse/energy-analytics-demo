@@ -1,0 +1,56 @@
+# User Configuration
+# Password hashes can be generated using: python -c "import bcrypt; print(bcrypt.hashpw('password'.encode(), bcrypt.gensalt()).decode())"
+
+credentials:
+  usernames:
+    admin:
+      email: admin@company.com
+      name: Admin User
+      password: $2b$12$example_hash_replace_with_real_hash  # Replace with actual bcrypt hash
+      role: admin
+
+    analyst1:
+      email: analyst1@company.com
+      name: Analytics Team Member
+      password: $2b$12$example_hash_replace_with_real_hash  # Replace with actual bcrypt hash
+      role: analyst
+
+    manager1:
+      email: manager1@company.com
+      name: Sales Manager
+      password: $2b$12$example_hash_replace_with_real_hash  # Replace with actual bcrypt hash
+      role: manager
+
+# Role definitions and permissions
+roles:
+  admin:
+    description: Full access to all data and system configuration
+    can_view_sensitive: true
+    can_export: true
+    can_view_all_reps: true
+    can_view_commissions: true
+    max_query_rows: 10000
+
+  analyst:
+    description: Analytics team members with broad data access
+    can_view_sensitive: true
+    can_export: true
+    can_view_all_reps: true
+    can_view_commissions: true
+    max_query_rows: 5000
+
+  manager:
+    description: Sales managers who can view team performance
+    can_view_sensitive: false
+    can_export: true
+    can_view_all_reps: true
+    can_view_commissions: false
+    max_query_rows: 1000
+
+  sales_rep:
+    description: Individual sales reps who can only view their own data
+    can_view_sensitive: false
+    can_export: false
+    can_view_all_reps: false
+    can_view_commissions: true  # Own commissions only
+    max_query_rows: 500
